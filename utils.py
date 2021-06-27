@@ -6,7 +6,7 @@ def eucledian_distance(p1, p2):
     return math.dist(p1, p2)
 
 def is_in_area(area, point, radius):
-    return eucledian_distance(point, area) <= radius
+    return 1 if eucledian_distance(point, area) <= radius else 0
 
 def get_random(range):
     return random.randrange(range[0], range[1])

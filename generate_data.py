@@ -9,8 +9,8 @@ def generate_data(
     areas = 3,
     demand_range = (3000, 10000),
     rent_range = (3000, 15000),
-    capacity_kitchen_range = (100, 200), 
-    capacity_restaurant_range = (500, 1000),
+    capacity_kitchen_range = (1000, 2000), 
+    capacity_restaurant_range = (300, 600),
     initial_kitchen_range = (500000, 1000000), 
     initial_restaurant_range = (100000, 200000)):
     
@@ -21,20 +21,15 @@ def generate_data(
         demand = get_random(demand_range)
         areas_demand.append((area, demand))
         positions = get_random_positions(area, radius, get_random(num_units_per_area))
-        for pos in positions:
-            rent = get_random(rent_range),
-            capacity_kitchen = get_random(capacity_kitchen_range) 
-            capacity_restaurant = get_random(capacity_restaurant_range)
-            initial_restaurant = get_random(initial_kitchen_range) 
-            initial_kitchen =  get_random(initial_restaurant_range)
-            # units.append([pos, i, rent, capacity_kitchen, capacity_restaurant, initial_restaurant, initial_kitchen])
+        for pos in positions: 
             units.append({
                 "position": pos,
                 "area": i,
-                "capacity_kitchen": capacity_kitchen,
-                "capacity_restaurant": capacity_restaurant,
-                "initial_restaurant": initial_restaurant,
-                "initial_kitchen": initial_kitchen
+                "rent": get_random(rent_range),
+                "capacity_kitchen": get_random(capacity_kitchen_range),
+                "capacity_restaurant": get_random(capacity_restaurant_range),
+                "initial_restaurant": get_random(initial_restaurant_range),
+                "initial_kitchen": get_random(initial_kitchen_range)
             })
 
     return units, areas_demand
