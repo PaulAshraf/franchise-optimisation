@@ -4,7 +4,7 @@ from ortools.linear_solver import pywraplp
 import matplotlib.pyplot as plt
 
 
-def mip(radius=10, budget=1e8, cpd=1, r=5):
+def mip(units, areas_demand, radius=10, budget=1e8, cpd=1, r=5):
     solver = pywraplp.Solver.CreateSolver('SCIP')
     n = len(units)
     restaurant = []
@@ -127,7 +127,7 @@ if __name__ == '__main__':
         capacity_restaurant_range=(300, 400),
         num_units_per_area=(2, 3),
         sparcity=15)
-    # solution = mip()
+    # solution = mip(units, areas_demand)
     # gui(solution)
     solution = greedy()
     gui(solution)

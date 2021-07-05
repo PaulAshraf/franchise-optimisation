@@ -1,5 +1,5 @@
 from utils import plot_solution
-from solver import mip_simple
+from solver import mip
 from generate_data import generate_data, plot_units
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -26,7 +26,7 @@ def get_units():
 
 def solve(solver):  
     if solver == 'mip':
-        solution = mip_simple(st.session_state['units'],  st.session_state['areas_demand'], radius, budget=1000000, cpd=1, r=10)
+        solution = mip(st.session_state['units'],  st.session_state['areas_demand'], radius, budget=1000000, cpd=1, r=10)
         fig = plot_solution(solution,  st.session_state['units'],  st.session_state['areas_demand'])
         st.session_state['fig'] = fig
 
