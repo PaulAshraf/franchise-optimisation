@@ -5,37 +5,38 @@ import streamlit as st
 import matplotlib.pyplot as plt
 from functools import partial
 
+
 def get_units():
-    units, areas_demand = generate_data(sparcity, 
-        radius, 
-        num_units_per_area, 
-        areas, 
-        demand_range, 
-        rent_range, 
-        capacity_kitchen_range, 
-        capacity_restaurant_range,
-        initial_kitchen_range, 
-        initial_restaurant_range
-    )   
-    
+    units, areas_demand = generate_data(sparcity,
+                                        radius,
+                                        num_units_per_area,
+                                        areas,
+                                        demand_range,
+                                        rent_range,
+                                        capacity_kitchen_range,
+                                        capacity_restaurant_range,
+                                        initial_kitchen_range,
+                                        initial_restaurant_range
+                                        )
+
     st.session_state['units'] = units
     st.session_state['areas_demand'] = areas_demand
-
     fig = plot_units(units, areas_demand, radius)
     st.session_state['fig'] = fig
 
-def solve(solver):  
+
+def solve(solver):
     if solver == 'mip':
-        solution = mip(st.session_state['units'],  st.session_state['areas_demand'], radius, budget=1000000, cpd=1, r=10)
-        fig = plot_solution(solution,  st.session_state['units'],  st.session_state['areas_demand'])
+        solution = mip(st.session_state['units'], st.session_state['areas_demand'], budget=4e6, cpd=1, r=5)
+        fig = plot_solution(solution, st.session_state['units'], st.session_state['areas_demand'])
         st.session_state['fig'] = fig
 
+
 if 'units' not in st.session_state:
-    units, areas_demand = generate_data()   
+    units, areas_demand = generate_data()
     st.session_state['units'] = units
     st.session_state['areas_demand'] = areas_demand
     st.session_state['fig'] = plt.figure()
-
 
 st.set_page_config(layout="wide")
 st.set_option('deprecation.showPyplotGlobalUse', False)
@@ -43,8 +44,7 @@ left, right = st.beta_columns(2)
 
 with left:
     st.header('Customise Random Data Ranges')
-
-    sparcity = st.slider('Sparcity', 0  , 100, 15)
+    sparcity = st.slider('Sparcity', 0, 100, 15)
     radius = st.slider('Radius', 0, 100, 10)
     num_units_per_area = st.slider('Number of units per area range', 0, 20, (2, 3))
     areas = st.slider('Areas', 0, 10, 6)
