@@ -4,9 +4,8 @@ from ortools.linear_solver import pywraplp
 import matplotlib.pyplot as plt
 
 
-def mip(units, areas_demand, radius=10, budget=1e8, cpd=1, r=5):
+def mip(units, areas_demand, budget=4e6, cpd=1, r=5):
     solver = pywraplp.Solver.CreateSolver('SCIP')
-    n = len(units)
     restaurant = []
     kitchen = []
     for i in range(n):
@@ -66,16 +65,39 @@ def mip(units, areas_demand, radius=10, budget=1e8, cpd=1, r=5):
     return restaurant_solution, kitchen_solution, transport_solution
 
 
-def greedy(radius=10, budget=1e8, cpd=1, r=5):
+def greedy(budget=4e6):
     units_kitchen = sorted(units, key=lambda unit: unit["rent"] + unit["initial_kitchen"])
     units_restaurant = sorted(units, key=lambda unit: unit["rent"] + unit["initial_restaurant"])
     kitchen = [0 for _ in units]
     restaurant = [0 for _ in units]
     transport = [[0 for _ in units] for _ in units]
-    n = len(units)
-    curr_kitchen = 0
+    areas_demand_sofar = [0 for _ in range(areas)]
     for i in range(n):
-        pass
+        kitch_ind = units_kitchen[i]['initial_index']
+        kitch_cap = units_kitchen[i]['capacity_kitchen']
+        kitch_price = units[i]["rent"] + units[i]["initial_kitchen"]
+        if kitch_price > budget or kitchen[kitch_ind] or restaurant[kitch_ind]:
+            continue
+        budget -= kitch_price
+        kitchen[kitch_ind] = 1
+        used = False
+        for j in range(n):
+            rest_ind = units_restaurant[j]['initial_index']
+            rest_cap = units_restaurant[j]['capacity_restaurant']
+            rest_price = units[j]["rent"] + units[j]["initial_restaurant"]
+            rest_area = units_restaurant[j]['area']
+            if rest_price > budget or kitch_cap < rest_cap or kitchen[rest_ind] or restaurant[rest_ind] or \
+                    areas_demand_sofar[rest_area] + rest_cap > areas_demand[rest_area][1]:
+                continue
+            budget -= rest_price
+            kitch_cap -= rest_cap
+            restaurant[rest_ind] = 1
+            transport[kitch_ind][rest_ind] = 1
+            areas_demand_sofar[rest_area] += rest_cap
+            used = True
+        if not used:
+            kitchen[kitch_ind] = 0
+    return restaurant, kitchen, transport
 
 
 def calc_cost(kitchen, restaurant, transport, cpd=1):
@@ -119,14 +141,17 @@ def gui(solution):
 
 
 if __name__ == '__main__':
+    areas = 6
+    radius = 10
     units, areas_demand = generate_data(
-        areas=6,
-        radius=10,
-        demand_range=(1e8, 1e9),
-        capacity_kitchen_range=(2000, 3000),
+        areas=areas,
+        radius=radius,
+        demand_range=(300*areas, 400*areas),
+        capacity_kitchen_range=(300*areas, 400*areas),
         capacity_restaurant_range=(300, 400),
-        num_units_per_area=(2, 3),
+        num_units_per_area=(3, 4),
         sparcity=15)
+    n = len(units)
     # solution = mip(units, areas_demand)
     # gui(solution)
     solution = greedy()
