@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 def eucledian_distance(p1, p2):
     return math.dist(p1, p2)
 
+def midpoint(p1, p2):
+    return ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
 
 def is_in_area(area, point, radius):
     return 1 if eucledian_distance(point, area) <= radius else 0

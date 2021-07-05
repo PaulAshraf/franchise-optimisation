@@ -27,7 +27,7 @@ def get_units():
 
 def solve(solver):
     if solver == 'mip':
-        solution = mip(st.session_state['units'], st.session_state['areas_demand'], budget=4e6, cpd=1, r=5)
+        solution = mip(st.session_state['units'], st.session_state['areas_demand'], radius=radius, budget=4e6, cpd=1, r=5)
         fig = plot_solution(solution, st.session_state['units'], st.session_state['areas_demand'])
         st.session_state['fig'] = fig
 
