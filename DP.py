@@ -10,13 +10,16 @@ units, areas_demand,radius = [],[],0
 #locations are 0,1,2 (not taken, restaurant, area)
 locations=0
 INF=np.inf
-def init():
-    # determineLocationBelongToAreas()
-    global locations
-    # global tCostMemo,transportMemo
-    # transportMemo={}
-    # tCostMemo={}
-    locations=0
+def init(Units, Areas_demand,radii,cpd=1):
+    global units,areas_demand,x,y,memo,radius,cur_locationBudgetMemo
+    global counter,normalTime,useMemory,budgetApproximation,capacityApproximation,processed,restsDoNotExceedDemand
+    radius=radii
+    memo={}
+    cur_locationBudgetMemo=[[] for _ in range(len(units))]
+    units, areas_demand=Units, Areas_demand
+    x = [ unit["position"][0] for unit in units ]
+    y = [ unit["position"][1] for unit in units ]
+    counter=0
     makeDistances()
 #calculate distance between an area center and location
 
@@ -52,22 +55,12 @@ capacityApproximation=1
 cpd=1
 restsDoNotExceedDemand=False
 #to do: sheel areas
-def callDP(budget,Units, Areas_demand,radii,cpd=1,usememory=True,useBudgetApproximation=1,useCapacityApproximation=1):
+def callDP(budget,usememory=True,useBudgetApproximation=1,useCapacityApproximation=1):
     global units,areas_demand,x,y,memo,radius,cur_locationBudgetMemo
     global counter,normalTime,useMemory,budgetApproximation,capacityApproximation,processed,restsDoNotExceedDemand
     capacityApproximation=useCapacityApproximation
     budgetApproximation=useBudgetApproximation
     useMemory=usememory
-    radius=radii
-    memo={}
-    cur_locationBudgetMemo=[[] for _ in range(len(units))]
-    units, areas_demand=Units, Areas_demand
-    x = [ unit["position"][0] for unit in units ]
-    y = [ unit["position"][1] for unit in units ]
-    counter=0
-    processed=0
-    normalTime=3**len(units)
-    init()
     # if sum(demand) restaurants in an area does not exceed it's demand, problem is much easier
     restsDoNotExceedDemand=True
     for a in areas_demand:
