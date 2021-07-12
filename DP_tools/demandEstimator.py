@@ -1,13 +1,14 @@
 from ortools.linear_solver import pywraplp
 import numpy as np
-from utils import is_in_area, midpoint
+from utils import is_in_area
 from DP_tools.maxFlow import getCost
 
 INF=np.inf
-# customers,tranCost,path,kitchensPicked,restaurantsPicked
+# customers,tranCost,path
 baseCase=0,INF,[]
-
-def estimateDemands(budget,locations,units,areas_demand,dist,radius,capacity,cpd=1):
+memoNotExceed={}
+memoResult={}
+def estimateDemands(budget,locations,units,areas_demand,dist,radius,cpd=1,restsDoNotExceedDemand=False):
     if budget<0:
         return baseCase
     restaurantsPicked=[]
@@ -15,6 +16,7 @@ def estimateDemands(budget,locations,units,areas_demand,dist,radius,capacity,cpd
     DemandRestaurant=[]
     # if sum(capacity kitchens) < sum(capacity restaurans), return INF
     capacity=0
+    indexRests=0
     for i in range(len(units)):
         if (locations>>(2*i)) & 3 == 1:     #kitchen
             #if kitchen and restaurant capacity are different, make it [i][1]  
@@ -24,22 +26,43 @@ def estimateDemands(budget,locations,units,areas_demand,dist,radius,capacity,cpd
         elif (locations>>(2*i)) & 3 == 2:   #Restaurant
             # capacity-=units[i]["capacity_restaurant"]
             # restaurantsPicked[i]=True
+            indexRests = indexRests | 2 <<(2*i)
             restaurantsPicked.append(i)
 
     # demand less than ability to supply
     # if capacity<0:
     #     return baseCase
-
     #if no kitchens or no restaurants, the answer is invalid
     if (len(kitchensPicked)<1 or len(restaurantsPicked)<1):
         return 0,0,[]
+
+    indexResult=(indexRests,capacity)
+    if indexResult in memoResult:
+        # print("memo restaurants used")
+        return getCost(units,kitchensPicked,restaurantsPicked,memoResult[indexResult],dist,cpd)
 
     DemandArea=[areas_demand[i][1] for i in range(len(areas_demand))]
     DemandRestaurant=[units[i]["capacity_restaurant"] for i in restaurantsPicked]
     #RestInArea[A][R]=1 if restaurant R is in area A
     RestInArea=[[is_in_area(units[i]["position"],j[0],radius) for i in restaurantsPicked] for j in areas_demand]
-
-    return getCost(units,kitchensPicked,restaurantsPicked,DemandRestaurant,dist,cpd)
+    
+    # for optimization purposes
+    # if chosen restaurants' demands inside an area do not exceed the area's demand:
+    if indexRests in memoNotExceed:
+        restsDoNotExceedDemand=memoNotExceed[indexRests]
+    elif not restsDoNotExceedDemand:
+        restsDoNotExceedDemand=True
+        for a in areas_demand:
+            areaDemand=0
+            for r in restaurantsPicked:
+                if is_in_area(units[r]["position"],a[0],radius):
+                    areaDemand+=units[r]["capacity_restaurant"]
+            if areaDemand>a[1]:
+                restsDoNotExceedDemand=False
+                break
+        memoNotExceed[indexRests] = restsDoNotExceedDemand
+    if restsDoNotExceedDemand:
+        return getCost(units,kitchensPicked,restaurantsPicked,DemandRestaurant,dist,cpd)
 
     solver = pywraplp.Solver.CreateSolver('GLOP')
     #variables
@@ -87,11 +110,13 @@ def estimateDemands(budget,locations,units,areas_demand,dist,radius,capacity,cpd
             finalRestaurantDemand.append(rest)
         # out=[((locations>>(2*i)) &3) for i in range(len(units))]
         # print(kitchensPicked,restaurantsPicked,'Number of customers =',solver.Objective().Value(),finalRestaurantDemand,", Capacity=",capacity)
-        transCost,path=getCost(units,kitchensPicked,restaurantsPicked,finalRestaurantDemand,dist)
         # return solver.Objective().Value(),transCost,path,kitchensPicked,restaurantsPicked,capacity
         # custR,transCostR,pathR
         # print(locations)
-        return solver.Objective().Value(),transCost,path
+        memoResult[indexResult] = finalRestaurantDemand
+        return getCost(units,kitchensPicked,restaurantsPicked,finalRestaurantDemand,dist,cpd)
+        # transCost,path=getCost(units,kitchensPicked,restaurantsPicked,finalRestaurantDemand,dist)
+        # return solver.Objective().Value(),transCost,path
     else:
         print('*'*100)
         return baseCase

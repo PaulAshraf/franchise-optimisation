@@ -2,7 +2,7 @@ import copy
 import numpy as np
 import matplotlib.pyplot as plt
 from generate_data import generate_data,plot_units
-from utils import eucledian_distance,midpoint
+from utils import eucledian_distance,midpoint, is_in_area
 from DP_tools.demandEstimator import estimateDemands
 import bisect
 
@@ -21,6 +21,9 @@ def init():
 #calculate distance between an area center and location
 
 dist=[]
+def getDist():
+    global dist
+    return dist
 def makeDistances():
     global units,dist
     dist=[]        #2d matrix
@@ -47,10 +50,11 @@ useMemory=True
 budgetApproximation=1
 capacityApproximation=1
 cpd=1
+restsDoNotExceedDemand=False
 #to do: sheel areas
 def callDP(budget,Units, Areas_demand,radii,cpd=1,usememory=True,useBudgetApproximation=1,useCapacityApproximation=1):
     global units,areas_demand,x,y,memo,radius,cur_locationBudgetMemo
-    global counter,normalTime,useMemory,budgetApproximation,capacityApproximation,processed
+    global counter,normalTime,useMemory,budgetApproximation,capacityApproximation,processed,restsDoNotExceedDemand
     capacityApproximation=useCapacityApproximation
     budgetApproximation=useBudgetApproximation
     useMemory=usememory
@@ -64,18 +68,29 @@ def callDP(budget,Units, Areas_demand,radii,cpd=1,usememory=True,useBudgetApprox
     processed=0
     normalTime=3**len(units)
     init()
+    # if sum(demand) restaurants in an area does not exceed it's demand, problem is much easier
+    restsDoNotExceedDemand=True
+    for a in areas_demand:
+        areaDemand=0
+        for r in units:
+            if is_in_area(r["position"],a[0],radius):
+                areaDemand+=r["capacity_restaurant"]
+        if areaDemand>a[1]:
+            restsDoNotExceedDemand=False
+            break
+    # print("restsDoNotExceedDemand =",restsDoNotExceedDemand)
     finalCust,finalCost,finalTransCost,finalPath,finalLocation,finalCapacity=dp(budget,0,0,0)
     # print("Number of times calculated: ",processed)
-    print("Executed: ",processed,"Number of times not entered due to memory: ",counter)
+    # print("DP Number of times Executed: ",processed,", Number of times not entered due to memory: ",counter)
     # print("sum = ",processed+counter)
     return finalCust,finalCost,finalTransCost,finalPath
 counter=0
 processed=0
 normalTime=0
 # remaining budget, demands left in areas, 
-def dp(budget,curr_location,locations,kitchenCapacity,):
+def dp(budget,curr_location,locations,kitchenCapacity):
     global units,areas_demand,radius,dist
-    global counter,processed,normalTime,useMemory,budgetApproximation
+    global counter,processed,normalTime,useMemory,budgetApproximation,restsDoNotExceedDemand
     if budget<0:
         # finalCust,finalCost,finalTransCost,finalPath,finalLocation,finalCapacity
         return -INF,INF,INF,[],0,-INF
@@ -87,7 +102,7 @@ def dp(budget,curr_location,locations,kitchenCapacity,):
         cust,transCost,path = estimateDemands(
             budget,
             locations,
-            units,areas_demand,dist,radius,kitchenCapacity,cpd)
+            units,areas_demand,dist,radius,cpd,restsDoNotExceedDemand)
         return cust,0,transCost,path,locations,kitchenCapacity
 
     # print(curr_location,"{0:b}".format(locations))
@@ -153,7 +168,7 @@ def dp(budget,curr_location,locations,kitchenCapacity,):
     # for i,(cust,cost,transCost,path,location,cap) in enumerate(comparison):
     #     print(curr_location,i,[((location>>(2*i)) &3) for i in range(len(units))],cap,cust,cap-cust)
     for i,(cust,cost,transCost,path,location,cap) in enumerate(comparison):
-        if budget>=cost:
+        if budget>=cost+transCost:
             if cust>finalCust\
                 or (cust==finalCust and cost+transCost<finalCost+finalTransCost) :
                 # or (cust==finalCust and cap-cust>finalKitchenCapacity)\
@@ -183,17 +198,22 @@ y=[]
 
 def plotDP(DPsol):
     global units,areas_demand,x,y,radius,useMemory
-    finalCust,finalCost,finalTransCost,path=DPsol
+    if len(DPsol)==4:   #DP or BF
+        if useMemory:
+            plt.figure("DP")
+            plt.title("Dynamic Programming")
+        else:
+            plt.figure("BF")
+            plt.title("Brute Force")
+        finalCust,finalCost,finalTransCost,path=DPsol
+    else:
+        plt.figure("Meta-Heurestics")
+        plt.title("Genetics")
+        finalCust,finalCost,path=DPsol
     kitchens,restaurants,_=zip(*path)
     kitchens=set(list(kitchens))
     restaurants=set(list(restaurants))
     # print(kitchens,restaurants)
-    if useMemory:
-        plt.figure("DP")
-        plt.title("Dynamic Programming")
-    else:
-        plt.figure("BF")
-        plt.title("Brute Force")
     for area in areas_demand:
         plt.gca().add_patch(plt.Circle(area[0], radius=10, alpha=.1))
         plt.scatter([area[0][0]], [area[0][1]], lw=.4, c='blue', marker="${}$".format(str(area[1])), s=200)

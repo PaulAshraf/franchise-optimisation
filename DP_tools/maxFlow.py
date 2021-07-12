@@ -77,4 +77,4 @@ def getCost(units,kitchensPicked,restaurantsPicked,restaurantsDemand,dist,cpd=1)
         return totalFlow,totalCost,out
     else:
         # print('There was an issue with the min cost flow input.')
-        return INF,[]
+        return 0,INF,[]

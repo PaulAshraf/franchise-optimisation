@@ -3,6 +3,7 @@ from utils import eucledian_distance, is_in_area, midpoint
 from ortools.linear_solver import pywraplp
 import matplotlib.pyplot as plt
 from DP import callDP,plotDP
+from genetics import geneticsAlgo
 import time
 def mip(units, areas_demand, budget=4e6, radius=10, cpd=1, r=5,timeLimit=1e9):
     M = int(1e5)
@@ -204,11 +205,11 @@ def gui(solution):
 radius=6
 import numpy as np
 if __name__ == '__main__':
-    areas = 6
+    areas = 4
     radius = 10
     units,demand=0,0
-    maxCities=14
-    minCities=10
+    maxCities=8
+    minCities=6
     budget=1e9
     while(True):
         units, areas_demand = generate_data(
@@ -225,18 +226,24 @@ if __name__ == '__main__':
         # break
         # budget = 500000*(n-1)
         print("*"*100)
-        print(n)
+        print("total Number of cities =",n)
+        print(" Solver "," time "," Cust "," Cost ")
+
+
+        #DP
         t=time.time()
         DPsol = callDP(budget=budget,Units=units,Areas_demand=areas_demand,radii=radius,
-        usememory=True, # To make the DP work
-        useBudgetApproximation=750000, # budget in memory to the factor of factor*(budget//factor)
+        usememory=False, # To make the DP work
+        useBudgetApproximation=500000, # budget in memory to the factor of factor*(budget//factor)
         useCapacityApproximation=1) # kitchenCapacity in memory to the factor of factor*(kitchenCapacity//factor)
         t_DP=(time.time()-t)*1000
         cust_DP=DPsol[0]
         cost_DP=DPsol[1]+DPsol[2]
         # print("DP done, time = ",time.time()-t,", customers = ",DPsol[0],", cost = ",DPsol[1],", transCost = ",DPsol[2])
         plotDP(DPsol)
+        print("   DP   ",round(t_DP,2),cust_DP,round(cost_DP,2))
 
+        #MIP
         t=time.time()
                                                                                 #maximum DP_time+1minute
         solution = mip(units, areas_demand, radius=radius, budget=budget, r=1e6,timeLimit=int(t_DP+60*1000))
@@ -245,18 +252,26 @@ if __name__ == '__main__':
         cust_MIP = mipsol[0]
         cost_MIP = mipsol[1]+mipsol[2]
         # print("MIP done, time = ",t_MIP,", customers=",mipsol[0],", cost = ",mipsol[1],", transCost = ",mipsol[2])
-
-        print(" Solver "," time "," Cust "," Cost ")
-        print("   DP   ",round(t_DP,2),cust_DP,round(cost_DP,2))
         print("  MIP   ",round(t_MIP,2),cust_MIP,round(cost_MIP,2))
+        
+        
+        #Meta-Heuresticcs
+        t=time.time()
+        geneticsSol = geneticsAlgo(budget,units,areas_demand,radius,maxTimes=10,CpD=1,family=n,r=1e6)
+        t_GEN = (time.time()-t)*1000
+        cust_GEN=geneticsSol[0]
+        cost_GEN=geneticsSol[1]
+        plotDP(geneticsSol)
+        print("Genetics",round(t_GEN,2),cust_GEN,round(cost_GEN,2))
 
-    # print("TransCost diff = ",(mipsol[2]-DPsol[2])/DPsol[0])
-    # t=time.time()
-    # DPsol = callDP(budget=budget,Units=units,Areas_demand=areas_demand,radii=radius,usememory=False)
-    # print("BF done, time = ",time.time()-t,", customers = ",DPsol[0],", cost = ",DPsol[1],", transCost = ",DPsol[2])
-    # plotDP(DPsol)
-    # if (DP!=DPsol[0]):
-    #     break
+
+        print("TransCost diff = ",(mipsol[2]-DPsol[2])/DPsol[0])
+        # t=time.time()
+        # DPsol = callDP(budget=budget,Units=units,Areas_demand=areas_demand,radii=radius,usememory=False)
+        # print("BF done, time = ",time.time()-t,", customers = ",DPsol[0],", cost = ",DPsol[1],", transCost = ",DPsol[2])
+        # plotDP(DPsol)
+        if (cust_MIP!=cust_DP):
+            break
 
     plt.show()
 
