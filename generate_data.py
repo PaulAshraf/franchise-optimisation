@@ -22,22 +22,22 @@ def generate_data(
         positions = get_random_positions(area, radius, get_random(num_units_per_area))
         for pos in positions:
             units.append({
-                "position": pos,
-                "area": i,
-                "rent": get_random(rent_range),
-                "capacity_kitchen": get_random(capacity_kitchen_range),
-                "capacity_restaurant": get_random(capacity_restaurant_range),
-                "initial_restaurant": get_random(initial_restaurant_range),
-                "initial_kitchen": get_random(initial_kitchen_range),
-                "initial_index": j
+                'position': pos,
+                'area': i,
+                'rent': get_random(rent_range),
+                'capacity_kitchen': get_random(capacity_kitchen_range),
+                'capacity_restaurant': get_random(capacity_restaurant_range),
+                'initial_restaurant': get_random(initial_restaurant_range),
+                'initial_kitchen': get_random(initial_kitchen_range),
+                'initial_index': j
             })
             j += 1
     return units, areas_demand
 
 
 def plot_units(units, areas_demand, radius):
-    x = [unit["position"][0] for unit in units]
-    y = [unit["position"][1] for unit in units]
+    x = [unit['position'][0] for unit in units]
+    y = [unit['position'][1] for unit in units]
     for area in areas_demand:
         plt.gca().add_patch(plt.Circle(area[0], radius, alpha=.1))
         plt.scatter([area[0][0]], [area[0][1]], lw=.4, c='blue', marker='+')
@@ -46,6 +46,6 @@ def plot_units(units, areas_demand, radius):
     plt.show()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     units, areas_demand = generate_data(areas=12, sparcity=2)
     plot_units(units, areas_demand, radius=10)
