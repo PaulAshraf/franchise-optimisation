@@ -38,7 +38,7 @@ if 'units' not in st.session_state:
     st.session_state['areas_demand'] = areas_demand
     st.session_state['fig'] = plt.figure()
 
-st.set_page_config(layout="wide")
+st.set_page_config(layout='wide')
 st.set_option('deprecation.showPyplotGlobalUse', False)
 left, right = st.beta_columns(2)
 
