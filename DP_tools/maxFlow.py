@@ -26,9 +26,9 @@ def getCost(units,kitchensPicked,restaurantsPicked,restaurantsDemand,dist,cpd=1)
 
     # Define an array of supplies at each node.
     # kitchens have +ve supply
-    supplies = [units[i]["capacity_kitchen"] for i in kitchensPicked]
+    supplies = [units[i]['capacity_kitchen'] for i in kitchensPicked]
     # restaurants have -ve supply
-    supplies+= [-units[i]["capacity_restaurant"] for i in restaurantsPicked]
+    supplies+= [-units[i]['capacity_restaurant'] for i in restaurantsPicked]
     # print(start_nodes)
     # print(end_nodes)
     # print(supplies)
