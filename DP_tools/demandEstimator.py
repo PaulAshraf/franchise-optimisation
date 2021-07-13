@@ -20,11 +20,11 @@ def estimateDemands(budget,locations,units,areas_demand,dist,radius,cpd=1,restsD
     for i in range(len(units)):
         if (locations>>(2*i)) & 3 == 1:     #kitchen
             #if kitchen and restaurant capacity are different, make it [i][1]  
-            capacity+=units[i]["capacity_kitchen"]
+            capacity+=units[i]['capacity_kitchen']
             # kitchensPicked[i]=True
             kitchensPicked.append(i)
         elif (locations>>(2*i)) & 3 == 2:   #Restaurant
-            # capacity-=units[i]["capacity_restaurant"]
+            # capacity-=units[i]['capacity_restaurant']
             # restaurantsPicked[i]=True
             indexRests = indexRests | 2 <<(2*i)
             restaurantsPicked.append(i)
@@ -38,13 +38,13 @@ def estimateDemands(budget,locations,units,areas_demand,dist,radius,cpd=1,restsD
 
     indexResult=(indexRests,capacity)
     if indexResult in memoResult:
-        # print("memo restaurants used")
+        # print('memo restaurants used')
         return getCost(units,kitchensPicked,restaurantsPicked,memoResult[indexResult],dist,cpd)
 
     DemandArea=[areas_demand[i][1] for i in range(len(areas_demand))]
-    DemandRestaurant=[units[i]["capacity_restaurant"] for i in restaurantsPicked]
+    DemandRestaurant=[units[i]['capacity_restaurant'] for i in restaurantsPicked]
     #RestInArea[A][R]=1 if restaurant R is in area A
-    RestInArea=[[is_in_area(units[i]["position"],j[0],radius) for i in restaurantsPicked] for j in areas_demand]
+    RestInArea=[[is_in_area(units[i]['position'],j[0],radius) for i in restaurantsPicked] for j in areas_demand]
     
     # for optimization purposes
     # if chosen restaurants' demands inside an area do not exceed the area's demand:
@@ -55,8 +55,8 @@ def estimateDemands(budget,locations,units,areas_demand,dist,radius,cpd=1,restsD
         for a in areas_demand:
             areaDemand=0
             for r in restaurantsPicked:
-                if is_in_area(units[r]["position"],a[0],radius):
-                    areaDemand+=units[r]["capacity_restaurant"]
+                if is_in_area(units[r]['position'],a[0],radius):
+                    areaDemand+=units[r]['capacity_restaurant']
             if areaDemand>a[1]:
                 restsDoNotExceedDemand=False
                 break
@@ -109,7 +109,7 @@ def estimateDemands(budget,locations,units,areas_demand,dist,radius,cpd=1,restsD
                 rest+=demandAR[a][r].solution_value()
             finalRestaurantDemand.append(rest)
         # out=[((locations>>(2*i)) &3) for i in range(len(units))]
-        # print(kitchensPicked,restaurantsPicked,'Number of customers =',solver.Objective().Value(),finalRestaurantDemand,", Capacity=",capacity)
+        # print(kitchensPicked,restaurantsPicked,'Number of customers =',solver.Objective().Value(),finalRestaurantDemand,', Capacity=',capacity)
         # return solver.Objective().Value(),transCost,path,kitchensPicked,restaurantsPicked,capacity
         # custR,transCostR,pathR
         # print(locations)
