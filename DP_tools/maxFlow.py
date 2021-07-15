@@ -24,7 +24,7 @@ def getCost(units, kitchensPicked, restaurantsPicked, restaurantsDemand, dist, c
     # kitchens have +ve supply
     supplies = [units[i]['capacity_kitchen'] for i in kitchensPicked]
     # restaurants have -ve supply
-    supplies += [-units[i]['capacity_restaurant'] for i in restaurantsPicked]
+    supplies += [-int(restaurantsDemand[i]) for i in range(len(restaurantsPicked))]
     # Instantiate a SimpleMinCostFlow solver.
     min_cost_flow = pywrapgraph.SimpleMinCostFlow()
     # Add each arc.
