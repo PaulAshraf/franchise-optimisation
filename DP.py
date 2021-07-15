@@ -21,7 +21,7 @@ areas_demand = []
 budget = 0
 
 
-def DPSolver(Budget, Units, Areas_demand, radii, CpD=1, r=1e6):
+def DPSolver(Budget, Units, Areas_demand, radii, CpD=1):
     global memo, cur_locationBudgetMemo, counter, units, areas_demand, radius, cpd, budget
     units = Units
     areas_demand = Areas_demand
@@ -51,7 +51,7 @@ def makeDistances():
             dist[j][i] = out
 
 
-def callDP(usememory=True, useBudgetApproximation=500000, useCapacityApproximation=1):
+def callDP(usememory=True, useBudgetApproximation=200000, useCapacityApproximation=1):
     global budget, units, areas_demand, memo, radius, cur_locationBudgetMemo, counter, normalTime, useMemory, budgetApproximation, capacityApproximation, processed, restsDoNotExceedDemand
     capacityApproximation = useCapacityApproximation
     budgetApproximation = useBudgetApproximation
@@ -94,14 +94,14 @@ def dp(budget, curr_location, locations, kitchenCapacity):
     locations0 = locations | locations0
     chosenK = 1 << (2 * curr_location)
     custK, costK, transCostK, pathK, locationsK, capacityK = dp(
-        budget - units[curr_location]['rent'] + units[curr_location]['initial_kitchen'],
+        budget - units[curr_location]['rent'] - units[curr_location]['initial_kitchen'],
         curr_location + 1,
         locations | chosenK,
         kitchenCapacity + units[curr_location]['capacity_kitchen'])
     costK += units[curr_location]['rent'] + units[curr_location]['initial_kitchen']
     locationsK = locationsK | locations | chosenK
     custR, costR, transCostR, pathR, locationsR, capacityR = dp(
-        budget - units[curr_location]['rent'] + units[curr_location]['initial_restaurant'],
+        budget - units[curr_location]['rent'] - units[curr_location]['initial_restaurant'],
         curr_location + 1,
         locations | 2 << (2 * curr_location),
         kitchenCapacity - units[curr_location]['capacity_restaurant'])
