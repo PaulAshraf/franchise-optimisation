@@ -1,27 +1,43 @@
+import numpy as np
+from utils import eucledian_distance
 from DP_tools.demandEstimator import estimateDemands
-from DP import getDist, INF
 import random
 
-units = 0
+units = []
 areas_demand = 0
-dist, radius, cpd = [], 0, 0
+dist = []
+radius = 0
+cpd = 0
 budget = 0
+INF = np.inf
+
+
+def makeDistances():
+    global units, dist
+    dist = []
+    for i in range(len(units)):
+        row = []
+        for j in range(len(units)):
+            row.append(0)
+        dist.append(row)
+    for i in range(len(units)):
+        for j in range(i, len(units)):
+            out = eucledian_distance(units[i]['position'], units[j]['position'])
+            out = round(out, 2)
+            dist[i][j] = out
+            dist[j][i] = out
 
 
 def getSolution(r):
     global units, areas_demand, budget, radius, dist, cpd
-
     locations = 0
     cost = 0
     for i, unit in enumerate(units):
         probabilityGene = random.randint(0, 7)
-        # if 0: do nothing, 1,2: take kitchen, 3+: take restaurant
         if 1 <= probabilityGene <= 2:
-            # kitchen
             locations |= 1 << (2 * i)
             cost += units[i]['rent'] + units[i]['initial_kitchen']
         elif 3 <= probabilityGene:
-            # restaurant
             locations |= 2 << (2 * i)
             cost += units[i]['rent'] + units[i]['initial_restaurant']
     cust, transCost, path = estimateDemands(
@@ -33,7 +49,6 @@ def getSolution(r):
 
 def isValid(solution):
     global budget
-    # cost < infinity
     return solution[2] <= budget
 
 
@@ -56,8 +71,6 @@ def costGene(i, gene):
 
 def introduceOffspring(father, mother, r):
     global units, areas_demand, budget, radius, dist, cpd
-    locations = 0
-    cost = 0
     while True:
         locations = 0
         cost = 0
@@ -97,21 +110,17 @@ def introduceOffspring(father, mother, r):
     # fatherLocs=[((father[0]>>(2*i)) &3) for i in range(len(units))]
     # motherLocs=[((mother[0]>>(2*i)) &3) for i in range(len(units))]
     # child=[((locations>>(2*i)) &3) for i in range(len(units))]
-    # print(father[1],mother[1],cust)
-    # print(fatherLocs,'x',motherLocs,'->',child)
     return locations, cust, cost + transCost, path, cust * r - (cost + transCost)
 
 
-def geneticsAlgo(Budget, Units, Areas_demand, radii, maxTimes=10, CpD=1, family=4, r=1e6):
+def genetics(Budget, Units, Areas_demand, radii, maxTimes=10, CpD=1, family=4, r=1e6):
     global units, areas_demand, dist, radius, cpd, budget
-
     units = Units
     areas_demand = Areas_demand
     budget = Budget
     radius = radii
     cpd = CpD
-    dist = getDist()
-
+    makeDistances()
     family = min(len(units), family)
     currFamily = []
     solution = 0, 0, INF, [], -1
@@ -119,32 +128,24 @@ def geneticsAlgo(Budget, Units, Areas_demand, radii, maxTimes=10, CpD=1, family=
     for i in range(family):
         currFamily.append(getValidSolution(r))
     while repeatedTimes != maxTimes:
-
-        # [((currFamily[0]>>(2*i)) &3),currFamily[1] for i in range(len(units))]
-
         # introduce new blood to the family as a parent
         currFamily.append(getValidSolution(r))
         currFamily = sorted(currFamily, key=lambda solution: solution[4], reverse=True)
-
         offSprings = []
         # introduce offsprings (Give Birth)
         for i in range(len(currFamily)):
             for j in range(i + 1, len(currFamily)):
                 # fittness(father) is always more than fittness(mother)
                 offSprings.append(introduceOffspring(currFamily[i], currFamily[j], r))
-
         # sort population by fittness
         population = currFamily + offSprings
         population = sorted(population, key=lambda solution: solution[4], reverse=True)
-
         # highest fitness
         if population[0] == solution:
             repeatedTimes += 1
         else:
             repeatedTimes = 0
             solution = population[0]
-
         # Survive of the fittest
         currFamily = population[:family + 1]
-    #       customers,cost        ,path
     return solution[1], solution[2], solution[3]
