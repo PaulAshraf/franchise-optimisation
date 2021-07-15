@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 
 def generate_data(
+        scenario=0,
         sparcity=10,
         radius=7,
         num_units_per_area=(5, 10),
@@ -34,6 +35,13 @@ def generate_data(
             j += 1
     return units, areas_demand
 
+
+# def get_correlate(demand, scenario, factor, range):
+#     if scenario == 0:
+#         return get_random(range)
+#     if scenario == 1:
+
+    
 
 def plot_units(units, areas_demand, radius):
     x = [unit['position'][0] for unit in units]

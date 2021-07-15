@@ -7,7 +7,7 @@ from genetics import geneticsAlgo
 import time
 
 
-def mip(units, areas_demand, budget=4e6, radius=10, cpd=1, r=5, timeLimit=1e9):
+def mip(units, areas_demand, budget=4e6, radius=10, cpd=1, r=5, timeLimit=int(1e9)):
     M = int(1e5)
     n = len(units)
     num_areas = len(areas_demand)
