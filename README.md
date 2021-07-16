@@ -1,7 +1,6 @@
 # franchise optimization problem
 
-## Dependencies
+# Run
 
-### numpy, ortools, streamlit, matplotlib, pandas
-
-## run command from terminal: streamlit run display.py
+pip install numpy ortools streamlit matplotlib pandas
+streamlit run display.py
