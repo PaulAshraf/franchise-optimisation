@@ -81,7 +81,7 @@ def plot_solution(solution, units, areas_demand, radius):
                     c='g' if solution[0][i] == 1 else 'r' if solution[1][i] == 1 else 'black')
     plt.grid(color='gray', ls='--', lw=0.25)
     plt.gca().set_aspect('equal', adjustable='box')
-    return plt.gcf()
+    return plt.gcf(), customers, cost + distCost
 
 
 def plot_units(units, areas_demand, radius):
@@ -107,7 +107,6 @@ def timed(func):
         solution = func(*a, **k)
         elapsed = time.time() - then
         return elapsed, solution
-
     return _w
 
 
@@ -131,11 +130,10 @@ def plot_solution_2(path, units, areas_demand, radius):
         plt.scatter([area[0][0]], [area[0][1]], lw=.4, c='blue', marker='${}$'.format(str(area[1])), s=200)
     for i, (x_, y_) in enumerate(zip(x, y)):
         plt.scatter([x_], [y_],
-                    marker='${capacity}$'.format(
-                        capacity=units[i]['capacity_restaurant']) if i in restaurants else '${capacity}$'.format(
-                        capacity=units[i]['capacity_kitchen']) if i in kitchens else '${}$'.format(i),
+                    marker='${}$'.format(units[i]['capacity_restaurant']) if i in restaurants else '${}$'.format(
+                        units[i]['capacity_kitchen']) if i in kitchens else 'x',
                     lw=.5,
-                    s=200,
+                    s=200 if i in restaurants or i in kitchens else 50,
                     c='g' if i in restaurants else 'r' if i in kitchens else 'black')
     for kitchen, rest, flow in path:
         p1 = units[kitchen]['position']
