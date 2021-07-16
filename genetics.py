@@ -105,8 +105,10 @@ def introduceOffspring(father, mother, r):
             budget,
             locations,
             units, areas_demand, dist, radius, cpd)
-        if isValid((locations, cust, cost + transCost, path, cust * r - (cost + transCost))):
-            break
+        if not isValid((locations, cust, cost + transCost, path, cust * r - (cost + transCost))):
+            cost = 2e9
+            cust = -1
+        break
     # fatherLocs=[((father[0]>>(2*i)) &3) for i in range(len(units))]
     # motherLocs=[((mother[0]>>(2*i)) &3) for i in range(len(units))]
     # child=[((locations>>(2*i)) &3) for i in range(len(units))]
