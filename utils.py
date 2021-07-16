@@ -122,7 +122,9 @@ def human_format(num):
 def plot_solution_2(path, units, areas_demand, radius):
     x = [unit['position'][0] for unit in units]
     y = [unit['position'][1] for unit in units]
-    kitchens, restaurants, _ = zip(*path)
+    kitchens,restaurants=[],[]
+    if len(path)>0:
+        kitchens, restaurants, _ = zip(*path)
     kitchens = set(list(kitchens))
     restaurants = set(list(restaurants))
     for area in areas_demand:
