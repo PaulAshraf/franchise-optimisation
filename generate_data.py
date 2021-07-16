@@ -2,7 +2,6 @@ from utils import get_random, get_random_positions, get_random_areas
 
 
 def generate_data(
-        scenario=0,
         sparcity=-10,
         radius=10,
         num_units_per_area=(1, 2),
