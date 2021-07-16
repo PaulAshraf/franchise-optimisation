@@ -127,7 +127,7 @@ def dp(budget, curr_location, locations, kitchenCapacity):
     ]
     comparison = sorted(comparison,
                         key=lambda solution: -2e9 if solution[1] + solution[2] > budget else solution[0] * r - (
-                                    solution[1] + solution[2]), reverse=True)
+                                solution[1] + solution[2]), reverse=True)
 
     sol = comparison[0]
     if sol[1] + sol[2] > budget:

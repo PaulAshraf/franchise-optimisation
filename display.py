@@ -33,10 +33,14 @@ def get_units():
     n = len(units)
     st.session_state['output'] = \
         {'number_of_units': n, 'budget': budget,
-         'algo1_cust': '', 'algo1_cost': '', 'algo1_trans': '', 'algo1_util': '', 'algo1_missed': '', 'algo1_dist_meal': '', 'algo1_t': '',
-         'algo2_cust': '', 'algo2_cost': '', 'algo2_trans': '', 'algo2_util': '', 'algo2_missed': '', 'algo2_dist_meal': '', 'algo2_t': '',
-         'algo3_cust': '', 'algo3_cost': '', 'algo3_trans': '', 'algo3_util': '', 'algo3_missed': '', 'algo3_dist_meal': '', 'algo3_t': '',
-         'algo4_cust': '', 'algo4_cost': '', 'algo4_trans': '', 'algo4_util': '', 'algo4_missed': '', 'algo4_dist_meal': '', 'algo4_t': ''}
+         'algo1_cust': '', 'algo1_cost': '', 'algo1_trans': '', 'algo1_util': '', 'algo1_missed': '',
+         'algo1_dist_meal': '', 'algo1_t': '',
+         'algo2_cust': '', 'algo2_cost': '', 'algo2_trans': '', 'algo2_util': '', 'algo2_missed': '',
+         'algo2_dist_meal': '', 'algo2_t': '',
+         'algo3_cust': '', 'algo3_cost': '', 'algo3_trans': '', 'algo3_util': '', 'algo3_missed': '',
+         'algo3_dist_meal': '', 'algo3_t': '',
+         'algo4_cust': '', 'algo4_cost': '', 'algo4_trans': '', 'algo4_util': '', 'algo4_missed': '',
+         'algo4_dist_meal': '', 'algo4_t': ''}
     st.session_state['algo1_output_units'] = {}
     st.session_state['algo1_output_trans'] = [[0 for _ in range(n)] for _ in range(n)]
     st.session_state['algo2_output_units'] = {}
@@ -106,8 +110,8 @@ def summary():
         results.append([
             f, len(units), budget,
             algo1_cust, algo1_cost, algo1_trans, algo1_util, 100 - algo1_util, algo1_dist_meal, algo1_t,
-            algo2_cust, algo2_cost, algo2_trans, algo2_util, 100 - algo2_util, algo2_trans/algo2_cust, algo2_t,
-            algo3_cust, algo3_cost, algo3_trans, algo3_util, 100 - algo3_util, algo3_trans/algo3_cust, algo3_t,
+            algo2_cust, algo2_cost, algo2_trans, algo2_util, 100 - algo2_util, algo2_trans / algo2_cust, algo2_t,
+            algo3_cust, algo3_cost, algo3_trans, algo3_util, 100 - algo3_util, algo3_trans / algo3_cust, algo3_t,
             algo4_cust, algo4_cost, algo4_trans, algo4_util, 100 - algo4_util, algo4_dist_meal, algo4_t])
         f += 1
     columns = [
@@ -155,7 +159,7 @@ def solve(s):
         st.session_state['output']['algo2_trans'] = algo2_trans
         st.session_state['output']['algo2_util'] = algo2_util
         st.session_state['output']['algo2_missed'] = 100 - algo2_util
-        st.session_state['output']['algo2_dist_meal'] = algo2_trans/algo2_cust
+        st.session_state['output']['algo2_dist_meal'] = algo2_trans / algo2_cust
         st.session_state['output']['algo2_t'] = algo2_t
         output('algo2_output', algo2_kitchens, algo2_restaurants, algo2_path)
     elif s == 'DP':
@@ -172,7 +176,7 @@ def solve(s):
         st.session_state['output']['algo3_trans'] = algo3_trans
         st.session_state['output']['algo3_util'] = algo3_util
         st.session_state['output']['algo3_missed'] = 100 - algo3_util
-        st.session_state['output']['algo3_dist_meal'] = algo3_trans/algo3_cust
+        st.session_state['output']['algo3_dist_meal'] = algo3_trans / algo3_cust
         st.session_state['output']['algo3_t'] = algo3_t
         output('algo3_output', algo3_kitchens, algo3_restaurants, algo3_path)
     elif s == 'MIP':
@@ -210,10 +214,14 @@ def output(algo, kitchens, restaurants, path):
 if 'output' not in st.session_state:
     st.session_state['output'] = \
         {'number_of_units': '', 'budget': '',
-         'algo1_cust': '', 'algo1_cost': '', 'algo1_trans': '', 'algo1_util': '', 'algo1_missed': '', 'algo1_dist_meal': '', 'algo1_t': '',
-         'algo2_cust': '', 'algo2_cost': '', 'algo2_trans': '', 'algo2_util': '', 'algo2_missed': '', 'algo2_dist_meal': '', 'algo2_t': '',
-         'algo3_cust': '', 'algo3_cost': '', 'algo3_trans': '', 'algo3_util': '', 'algo3_missed': '', 'algo3_dist_meal': '', 'algo3_t': '',
-         'algo4_cust': '', 'algo4_cost': '', 'algo4_trans': '', 'algo4_util': '', 'algo4_missed': '', 'algo4_dist_meal': '', 'algo4_t': ''}
+         'algo1_cust': '', 'algo1_cost': '', 'algo1_trans': '', 'algo1_util': '', 'algo1_missed': '',
+         'algo1_dist_meal': '', 'algo1_t': '',
+         'algo2_cust': '', 'algo2_cost': '', 'algo2_trans': '', 'algo2_util': '', 'algo2_missed': '',
+         'algo2_dist_meal': '', 'algo2_t': '',
+         'algo3_cust': '', 'algo3_cost': '', 'algo3_trans': '', 'algo3_util': '', 'algo3_missed': '',
+         'algo3_dist_meal': '', 'algo3_t': '',
+         'algo4_cust': '', 'algo4_cost': '', 'algo4_trans': '', 'algo4_util': '', 'algo4_missed': '',
+         'algo4_dist_meal': '', 'algo4_t': ''}
 if 'units' not in st.session_state:
     units, areas_demand = generate_data()
     st.session_state['units'] = units
