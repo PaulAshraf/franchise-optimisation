@@ -1,6 +1,6 @@
 import numpy as np
 from utils import eucledian_distance, is_in_area
-from DP_tools.demandEstimator import estimateDemands
+from DP_tools.demandEstimator import estimateDemands, init
 
 radius = 0
 locations = 0
@@ -19,10 +19,11 @@ normalTime = 0
 units = []
 areas_demand = []
 budget = 0
+r = 1e6
 
 
-def DPSolver(Budget, Units, Areas_demand, radii, CpD=1):
-    global memo, cur_locationBudgetMemo, counter, units, areas_demand, radius, cpd, budget
+def DPSolver(Budget, Units, Areas_demand, radii, CpD, R):
+    global memo, cur_locationBudgetMemo, counter, units, areas_demand, radius, cpd, budget, r
     units = Units
     areas_demand = Areas_demand
     budget = Budget
@@ -31,7 +32,9 @@ def DPSolver(Budget, Units, Areas_demand, radii, CpD=1):
     memo = {}
     cur_locationBudgetMemo = [[] for _ in range(len(units))]
     counter = 0
+    r = R
     makeDistances()
+    init()
     return callDP()
 
 
@@ -70,7 +73,7 @@ def callDP(usememory=True, useBudgetApproximation=200000, useCapacityApproximati
 
 
 def dp(budget, curr_location, locations, kitchenCapacity):
-    global units, areas_demand, radius, dist, counter, processed, normalTime, useMemory, budgetApproximation, restsDoNotExceedDemand
+    global units, areas_demand, radius, dist, counter, processed, normalTime, useMemory, budgetApproximation, restsDoNotExceedDemand, r
     if budget < 0:
         return -INF, INF, INF, [], 0, -INF
     if budget == 0 or curr_location == len(units):
@@ -108,23 +111,11 @@ def dp(budget, curr_location, locations, kitchenCapacity):
     costR += units[curr_location]['rent'] + units[curr_location]['initial_restaurant']
     locationsR = locationsR | locations | (2 << (2 * curr_location))
     comparison = [
-        (cust0, cost0, transCost0, path0, locations0, capacity0),
-        (custK, costK, transCostK, pathK, locationsK, capacityK),
-        (custR, costR, transCostR, pathR, locationsR, capacityR)
+        (cust0, cost0, 2e9 if transCost0 > budget else transCost0, path0, locations0, capacity0),
+        (custK, costK, 2e9 if transCostK > budget else transCostK, pathK, locationsK, capacityK),
+        (custR, costR, 2e9 if transCostR > budget else transCostR, pathR, locationsR, capacityR)
     ]
-    counterVal = 0
-    finalKitchenCapacity = INF
-    finalCust, finalCost, finalTransCost, finalPath, finalLocation, finalCapacity = -INF, INF, INF, [], 0, -INF
-    for i, (cust, cost, transCost, path, location, cap) in enumerate(comparison):
-        if budget >= cost + transCost:
-            if cust > finalCust or (cust == finalCust and cost + transCost < finalCost + finalTransCost):
-                finalCapacity = cap
-                finalKitchenCapacity = cap - cust
-                finalCust, finalCost, finalTransCost, finalPath, finalLocation = cust, cost, transCost, path, location
-                counterVal = i
-    if finalKitchenCapacity == INF:
-        counterVal = 0
-        finalCust, finalCost, finalTransCost, finalPath, finalLocation = -INF, INF, INF, [], 0
+    comparison = sorted(comparison, key=lambda solution: solution[0] * r - (solution[1] + solution[2]), reverse=True)
     if useMemory:
-        memo[index] = finalCust, finalCost, finalTransCost, finalPath, finalLocation, finalCapacity
-    return finalCust, finalCost, finalTransCost, finalPath, finalLocation, finalCapacity
+        memo[index] = comparison[0]
+    return comparison[0]
