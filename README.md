@@ -6,5 +6,4 @@
   * source venv/bin/activate
   * pip install -r requirements.txt
 # Run
-* pip install numpy ortools streamlit matplotlib pandas
 * streamlit run display.py
