@@ -15,17 +15,17 @@ def MIP(units, areas_demand, budget, radius, cpd, r):
         restaurant.append(solver.IntVar(0, 1, 'R' + str(i)))
         kitchen.append(solver.IntVar(0, 1, 'K' + str(i)))
     transport = []
-    z = []
+    # z = []
     for i in range(n):
         transport.append([])
-        z.append([])
+        # z.append([])
         for j in range(n):
             if i != j:
                 transport[i].append(solver.IntVar(0, solver.infinity(), 'T' + str(i) + str(j)))
-                z[i].append(solver.IntVar(0, solver.infinity(), 'Z' + str(i) + str(j)))
+                # z[i].append(solver.IntVar(0, solver.infinity(), 'Z' + str(i) + str(j)))
             else:
                 transport[i].append(solver.IntVar(0, 0, 'T' + str(i) + str(j)))
-                z[i].append(solver.IntVar(0, 0, 'Z' + str(i) + str(j)))
+                # z[i].append(solver.IntVar(0, 0, 'Z' + str(i) + str(j)))
     area_flow = []
     for i in range(n):
         area_flow.append([])
@@ -34,12 +34,12 @@ def MIP(units, areas_demand, budget, radius, cpd, r):
                 area_flow[i].append(solver.IntVar(0, solver.infinity(), 'Y' + str(i) + str(a)))
             else:
                 area_flow[i].append(solver.IntVar(0, 0, 'Y' + str(i) + str(a)))
-    # 1: Zij <--> Tij
-    for i in range(n):
-        for j in range(n):
-            solver.Add(transport[i][j] <= M * z[i][j])
-            solver.Add(z[i][j] <= M * transport[i][j])
-    # 2: Zij <--> Tij
+    # # 1: Zij <--> Tij
+    # for i in range(n):
+    #     for j in range(n):
+    #         solver.Add(transport[i][j] <= M * z[i][j])
+    #         solver.Add(z[i][j] <= M * transport[i][j])
+    # 2: Ki + Ri <= 1
     for i in range(n):
         solver.Add(kitchen[i] + restaurant[i] <= 1)
     # 3: for each a: sum_r Yr,a <= d_a
