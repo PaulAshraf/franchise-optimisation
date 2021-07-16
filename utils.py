@@ -52,7 +52,7 @@ def plot_solution(solution, units, areas_demand, radius):
     locations = 0
     cost = 0
     distCost = 0
-    path=[]
+    path = []
     x = [unit['position'][0] for unit in units]
     y = [unit['position'][1] for unit in units]
     for i in range(len(solution[2])):
@@ -60,7 +60,7 @@ def plot_solution(solution, units, areas_demand, radius):
             if solution[2][i][j] > 0:
                 p1 = (units[i]['position'][0], units[i]['position'][1])
                 p2 = (units[j]['position'][0], units[j]['position'][1])
-                path.append((i,j,solution[2][i][j]))
+                path.append((i, j, solution[2][i][j]))
                 distCost += eucledian_distance(p1, p2) * 1 * solution[2][i][j]
                 plt.plot([p1[0], p2[0]], [p1[1], p2[1]], 'r--', alpha=.2)
                 plt.text(midpoint(p1, p2)[0], midpoint(p1, p2)[1], solution[2][i][j], fontsize='small')
@@ -83,11 +83,15 @@ def plot_solution(solution, units, areas_demand, radius):
                     c='g' if solution[0][i] == 1 else 'r' if solution[1][i] == 1 else 'black')
     plt.grid(color='gray', ls='--', lw=0.25)
     plt.gca().set_aspect('equal', adjustable='box')
-    if len(path)>0:
+    kitchens = []
+    restaurants = []
+    if len(path) > 0:
         kitchens, restaurants, _ = zip(*path)
     kitchens = set(list(kitchens))
     restaurants = set(list(restaurants))
-    return plt.gcf(), customers, cost + distCost,kitchens,restaurants,path
+    averageUtilization = customers / sum([units[i]['capacity_restaurant'] for i in restaurants])
+    distancePerMeal = distCost / customers
+    return plt.gcf(), customers, cost, distCost, kitchens, restaurants, path, averageUtilization * 100, distancePerMeal
 
 
 def plot_units(units, areas_demand, radius):
@@ -113,6 +117,7 @@ def timed(func):
         solution = func(*a, **k)
         elapsed = time.time() - then
         return elapsed, solution
+
     return _w
 
 
@@ -128,8 +133,8 @@ def human_format(num):
 def plot_solution_2(path, units, areas_demand, radius):
     x = [unit['position'][0] for unit in units]
     y = [unit['position'][1] for unit in units]
-    kitchens,restaurants=[],[]
-    if len(path)>0:
+    kitchens, restaurants = [], []
+    if len(path) > 0:
         kitchens, restaurants, _ = zip(*path)
     kitchens = set(list(kitchens))
     restaurants = set(list(restaurants))
@@ -150,4 +155,5 @@ def plot_solution_2(path, units, areas_demand, radius):
         plt.text(midpoint(p1, p2)[0], midpoint(p1, p2)[1], flow, fontsize='small')
     plt.grid(color='gray', ls='--', lw=0.25)
     plt.gca().set_aspect('equal', adjustable='box')
-    return plt.gcf(),kitchens,restaurants,path
+    averageUtilization = sum([i[2] for i in path]) / sum([units[i]['capacity_restaurant'] for i in restaurants])
+    return plt.gcf(), kitchens, restaurants, path, averageUtilization * 100
