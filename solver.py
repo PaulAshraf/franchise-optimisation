@@ -79,6 +79,7 @@ def MIP(units, areas_demand, budget, radius, cpd, r):
         for j in range(n):
             c += transport[i][j]
         solver.Add(c <= M * kitchen[i])
+        solver.Add(c >= kitchen[i])
     # 9: for each i,j: sum Ti,j <= R_j * M
     for j in range(n):
         c = 0
@@ -101,8 +102,8 @@ def MIP(units, areas_demand, budget, radius, cpd, r):
     for a in range(num_areas):
         for i in range(n):
             customers += area_flow[i][a] * 365
-    solver.set_time_limit(5000)
-    solver.Maximize(customers * r - cost)
+    solver.set_time_limit(60000)
+    solver.Maximize(customers * (1 - 1.0 / r) - cost * 1.0 / r)
     solver.Solve()
     restaurant_solution = [int(v.solution_value()) for v in restaurant]
     kitchen_solution = [int(v.solution_value()) for v in kitchen]
@@ -112,6 +113,7 @@ def MIP(units, areas_demand, budget, radius, cpd, r):
 
 
 def Greedy(units, areas_demand, budget, radius, cpd, r):
+    r = r / float(1e4)
     n = len(units)
     areas = len(areas_demand)
     units_kitchen = sorted(units, key=lambda unit: (unit['rent'] + unit['initial_kitchen']) / unit['capacity_kitchen'])
@@ -131,8 +133,8 @@ def Greedy(units, areas_demand, budget, radius, cpd, r):
         kitchen[kitch_ind] = 1
         used = False
         units_restaurant = sorted(units, key=lambda unit: (unit['rent'] + unit[
-            'initial_restaurant'] + eucledian_distance(kitch_pos, unit['position']) * 365 * cpd * min(kitch_cap, unit[
-            'capacity_restaurant'] - rest_cap_sofar[unit['initial_index']])) / unit['capacity_restaurant'])
+            'initial_restaurant'] + eucledian_distance(kitch_pos, unit['position']) * (1.0 / r) * 365 * cpd * min(kitch_cap, unit[
+            'capacity_restaurant'] - rest_cap_sofar[unit['initial_index']])) / unit['capacity_restaurant'] * (1 - 1.0 / r))
         for j in range(n):
             rest_ind = units_restaurant[j]['initial_index']
             rest_cap = units_restaurant[j]['capacity_restaurant']
