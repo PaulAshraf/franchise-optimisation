@@ -54,7 +54,7 @@ def makeDistances():
             dist[j][i] = out
 
 
-def callDP(usememory=True, useBudgetApproximation=200000, useCapacityApproximation=1):
+def callDP(usememory=True, useBudgetApproximation=1000000, useCapacityApproximation=1):
     global budget, units, areas_demand, memo, radius, cur_locationBudgetMemo, counter, normalTime, useMemory, budgetApproximation, capacityApproximation, processed, restsDoNotExceedDemand
     capacityApproximation = useCapacityApproximation
     budgetApproximation = useBudgetApproximation
@@ -87,7 +87,14 @@ def dp(budget, curr_location, locations, kitchenCapacity):
     index = (indexBudget, curr_location, indexCapacity)
     if index in memo and memo[index][1] + memo[index][2] <= budget:
         counter += 1
-        return memo[index]
+        currLocations = locations | ((memo[index][4] << curr_location) >> curr_location)
+        cost = memo[index][1]
+        budget -= cost
+        cust, transCost, path = estimateDemands(
+            budget,
+            currLocations,
+            units, areas_demand, dist, radius, cpd, restsDoNotExceedDemand)
+        return cust, cost, transCost, path, currLocations, 0
     processed += 1
     cust0, cost0, transCost0, path0, locations0, capacity0 = dp(
         budget,
@@ -116,6 +123,9 @@ def dp(budget, curr_location, locations, kitchenCapacity):
         (custR, costR, 2e9 if transCostR > budget else transCostR, pathR, locationsR, capacityR)
     ]
     comparison = sorted(comparison, key=lambda solution: solution[0] * r - (solution[1] + solution[2]), reverse=True)
+    sol = comparison[0]
+    if sol[1] + sol[2] > budget:
+        return 0, 2e9, 2e9, [], locations, 0
     if useMemory:
         memo[index] = comparison[0]
     return comparison[0]
