@@ -170,5 +170,5 @@ def Genetics(units, areas_demand, budget, radius, cpd, r):
     return genetics(budget, units, areas_demand, radius, n, cpd, n ** 2, r)
 
 
-def DP(units, areas_demand, budget, radius, cpd, r):
-    return DPSolver(budget, units, areas_demand, radius, cpd, r)
+def DP(units, areas_demand, budget, radius, cpd, r, useBudgetApproximation):
+    return DPSolver(budget, units, areas_demand, radius, cpd, r, useBudgetApproximation)
