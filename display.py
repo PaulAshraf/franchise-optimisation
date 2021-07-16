@@ -289,6 +289,13 @@ budget = st.slider('Total budget', int(1e6), int(1e7), int(1e6), step=int(1e6), 
 st.session_state['output']['budget'] = budget
 r = st.slider('Optimization ratio', int(1e6), int(1e9), int(1e6), step=int(1e6), format="%e")
 st.button('Generate Random Data', on_click=get_units)
+st.header('Input Tables')
+st.header("Areas")
+df_areas_demand = pd.DataFrame.from_dict(st.session_state['areas_demand'])
+df_areas_demand.columns = ['center', 'area_demand']
+st.dataframe(df_areas_demand)
+st.header("Units")
+st.dataframe(pd.DataFrame.from_dict(st.session_state['units']))
 st.header("Greedy")
 st.button('Greedy', on_click=partial(solve, 'Greedy'))
 st.pyplot(st.session_state['algo1_fig'])
@@ -301,13 +308,6 @@ st.pyplot(st.session_state['algo3_fig'])
 st.header("MIP")
 st.button('MIP', on_click=partial(solve, 'MIP'))
 st.pyplot(st.session_state['algo4_fig'])
-st.header('Input Tables')
-st.header("Areas")
-df_areas_demand = pd.DataFrame.from_dict(st.session_state['areas_demand'])
-df_areas_demand.columns = ['center', 'area_demand']
-st.dataframe(df_areas_demand)
-st.header("Units")
-st.dataframe(pd.DataFrame.from_dict(st.session_state['units']))
 st.header('Output Tables')
 st.header('Comparison')
 st.dataframe(pd.DataFrame(st.session_state['output'], index=[0], columns=[
