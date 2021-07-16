@@ -74,12 +74,16 @@ def MIP(units, areas_demand, budget, radius, cpd, r):
             c += transport[i][j]
         solver.Add(c <= units[j]['capacity_restaurant'])
     # 8: for each i:  sum_j Ti,j <= K_i * M
-    # 9: for each i,j: sum Ti,j <= R_j * M
     for i in range(n):
         c = 0
         for j in range(n):
             c += transport[i][j]
         solver.Add(c <= M * kitchen[i])
+    # 9: for each i,j: sum Ti,j <= R_j * M
+    for j in range(n):
+        c = 0
+        for i in range(n):
+            c += transport[i][j]
         solver.Add(c <= M * restaurant[j])
     # 10:
     cost = 0
@@ -97,6 +101,7 @@ def MIP(units, areas_demand, budget, radius, cpd, r):
     for a in range(num_areas):
         for i in range(n):
             customers += area_flow[i][a] * 365
+    solver.set_time_limit(5000)
     solver.Maximize(customers * r - cost)
     solver.Solve()
     restaurant_solution = [int(v.solution_value()) for v in restaurant]
