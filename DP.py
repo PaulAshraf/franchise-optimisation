@@ -22,7 +22,7 @@ budget = 0
 r = 1e6
 
 
-def DPSolver(Budget, Units, Areas_demand, radii, CpD, R):
+def DPSolver(Budget, Units, Areas_demand, radii, CpD, R, useBudgetApproximation):
     global memo, cur_locationBudgetMemo, counter, units, areas_demand, radius, cpd, budget, r
     units = Units
     areas_demand = Areas_demand
@@ -35,7 +35,7 @@ def DPSolver(Budget, Units, Areas_demand, radii, CpD, R):
     r = R
     makeDistances()
     init()
-    return callDP()
+    return callDP(useBudgetApproximation=useBudgetApproximation)
 
 
 def makeDistances():
@@ -54,8 +54,9 @@ def makeDistances():
             dist[j][i] = out
 
 
-def callDP(usememory=True, useBudgetApproximation=1000000, useCapacityApproximation=1):
+def callDP(usememory=True, useBudgetApproximation=1, useCapacityApproximation=1):
     global budget, units, areas_demand, memo, radius, cur_locationBudgetMemo, counter, normalTime, useMemory, budgetApproximation, capacityApproximation, processed, restsDoNotExceedDemand
+    useBudgetApproximation = min(int(budget / 1000.0), useBudgetApproximation)
     capacityApproximation = useCapacityApproximation
     budgetApproximation = useBudgetApproximation
     useMemory = usememory
@@ -94,6 +95,8 @@ def dp(budget, curr_location, locations, kitchenCapacity):
             budget,
             currLocations,
             units, areas_demand, dist, radius, cpd, restsDoNotExceedDemand)
+        if cost + transCost > budget:
+            return 0, 2e9, 2e9, [], locations, 0
         return cust, cost, transCost, path, currLocations, 0
     processed += 1
     cust0, cost0, transCost0, path0, locations0, capacity0 = dp(
@@ -118,11 +121,14 @@ def dp(budget, curr_location, locations, kitchenCapacity):
     costR += units[curr_location]['rent'] + units[curr_location]['initial_restaurant']
     locationsR = locationsR | locations | (2 << (2 * curr_location))
     comparison = [
-        (cust0, cost0, 2e9 if transCost0 > budget else transCost0, path0, locations0, capacity0),
-        (custK, costK, 2e9 if transCostK > budget else transCostK, pathK, locationsK, capacityK),
-        (custR, costR, 2e9 if transCostR > budget else transCostR, pathR, locationsR, capacityR)
+        (cust0, cost0, transCost0, path0, locations0, capacity0),
+        (custK, costK, transCostK, pathK, locationsK, capacityK),
+        (custR, costR, transCostR, pathR, locationsR, capacityR)
     ]
-    comparison = sorted(comparison, key=lambda solution: solution[0] * r - (solution[1] + solution[2]), reverse=True)
+    comparison = sorted(comparison,
+                        key=lambda solution: -2e9 if solution[1] + solution[2] > budget else solution[0] * r - (
+                                    solution[1] + solution[2]), reverse=True)
+
     sol = comparison[0]
     if sol[1] + sol[2] > budget:
         return 0, 2e9, 2e9, [], locations, 0
