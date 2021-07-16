@@ -1,6 +1,6 @@
 import numpy as np
 from utils import eucledian_distance
-from DP_tools.demandEstimator import estimateDemands
+from DP_tools.demandEstimator import estimateDemands, init
 import random
 
 units = []
@@ -113,7 +113,7 @@ def introduceOffspring(father, mother, r):
     return locations, cust, cost + transCost, path, cust * r - (cost + transCost)
 
 
-def genetics(Budget, Units, Areas_demand, radii, maxTimes=10, CpD=1, family=4, r=1e6):
+def genetics(Budget, Units, Areas_demand, radii, maxTimes, CpD, family, r):
     global units, areas_demand, dist, radius, cpd, budget
     units = Units
     areas_demand = Areas_demand
@@ -121,6 +121,7 @@ def genetics(Budget, Units, Areas_demand, radii, maxTimes=10, CpD=1, family=4, r
     radius = radii
     cpd = CpD
     makeDistances()
+    init()
     family = min(len(units), family)
     currFamily = []
     solution = 0, 0, INF, [], -1
