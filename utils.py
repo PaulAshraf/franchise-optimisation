@@ -52,6 +52,7 @@ def plot_solution(solution, units, areas_demand, radius):
     locations = 0
     cost = 0
     distCost = 0
+    path=[]
     x = [unit['position'][0] for unit in units]
     y = [unit['position'][1] for unit in units]
     for i in range(len(solution[2])):
@@ -59,7 +60,8 @@ def plot_solution(solution, units, areas_demand, radius):
             if solution[2][i][j] > 0:
                 p1 = (units[i]['position'][0], units[i]['position'][1])
                 p2 = (units[j]['position'][0], units[j]['position'][1])
-                distCost += eucledian_distance(p1, p2) * 365 * solution[2][i][j]
+                path.append((i,j,solution[2][i][j]))
+                distCost += eucledian_distance(p1, p2) * 1 * solution[2][i][j]
                 plt.plot([p1[0], p2[0]], [p1[1], p2[1]], 'r--', alpha=.2)
                 plt.text(midpoint(p1, p2)[0], midpoint(p1, p2)[1], solution[2][i][j], fontsize='small')
                 customers += solution[2][i][j]
@@ -81,7 +83,11 @@ def plot_solution(solution, units, areas_demand, radius):
                     c='g' if solution[0][i] == 1 else 'r' if solution[1][i] == 1 else 'black')
     plt.grid(color='gray', ls='--', lw=0.25)
     plt.gca().set_aspect('equal', adjustable='box')
-    return plt.gcf(), customers, cost + distCost
+    if len(path)>0:
+        kitchens, restaurants, _ = zip(*path)
+    kitchens = set(list(kitchens))
+    restaurants = set(list(restaurants))
+    return plt.gcf(), customers, cost + distCost,kitchens,restaurants,path
 
 
 def plot_units(units, areas_demand, radius):
@@ -144,4 +150,4 @@ def plot_solution_2(path, units, areas_demand, radius):
         plt.text(midpoint(p1, p2)[0], midpoint(p1, p2)[1], flow, fontsize='small')
     plt.grid(color='gray', ls='--', lw=0.25)
     plt.gca().set_aspect('equal', adjustable='box')
-    return plt.gcf()
+    return plt.gcf(),kitchens,restaurants,path

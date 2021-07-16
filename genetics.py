@@ -44,19 +44,20 @@ def getSolution(r):
         budget,
         locations,
         units, areas_demand, dist, radius, cpd)
-    return locations, cust, cost + transCost, path, cust * r - (cost + transCost)
+    return locations, cust, cost, transCost, path
 
 
 def isValid(solution):
     global budget
-    return solution[2] <= budget
+    return solution[2]+solution[3]<= budget
 
 
 def getValidSolution(r):
     while True:
-        solution = getSolution(r)
-        if isValid(solution):
-            return solution
+        locations, cust, cost, transCost, path = getSolution(r)
+        if not isValid((locations, cust, cost, transCost, path)):
+            cust=0
+        return locations, cust, cost, transCost, path
 
 
 def costGene(i, gene):
@@ -105,14 +106,13 @@ def introduceOffspring(father, mother, r):
             budget,
             locations,
             units, areas_demand, dist, radius, cpd)
-        if not isValid((locations, cust, cost + transCost, path, cust * r - (cost + transCost))):
-            cost = 2e9
-            cust = -1
+        if not isValid((locations, cust, cost, transCost, path)):
+            cust=0
         break
     # fatherLocs=[((father[0]>>(2*i)) &3) for i in range(len(units))]
     # motherLocs=[((mother[0]>>(2*i)) &3) for i in range(len(units))]
     # child=[((locations>>(2*i)) &3) for i in range(len(units))]
-    return locations, cust, cost + transCost, path, cust * r - (cost + transCost)
+    return locations, cust, cost, transCost, path
 
 
 def genetics(Budget, Units, Areas_demand, radii, maxTimes, CpD, family, r):
@@ -133,7 +133,7 @@ def genetics(Budget, Units, Areas_demand, radii, maxTimes, CpD, family, r):
     while repeatedTimes != maxTimes:
         # introduce new blood to the family as a parent
         currFamily.append(getValidSolution(r))
-        currFamily = sorted(currFamily, key=lambda solution: solution[4], reverse=True)
+        currFamily = sorted(currFamily, key = lambda solution: solution[1]*r-(solution[3]+solution[2]),reverse=True)
         offSprings = []
         # introduce offsprings (Give Birth)
         for i in range(len(currFamily)):
@@ -142,7 +142,7 @@ def genetics(Budget, Units, Areas_demand, radii, maxTimes, CpD, family, r):
                 offSprings.append(introduceOffspring(currFamily[i], currFamily[j], r))
         # sort population by fittness
         population = currFamily + offSprings
-        population = sorted(population, key=lambda solution: solution[4], reverse=True)
+        population = sorted(population, key = lambda solution: solution[1]*r-(solution[3]+solution[2]),reverse=True)
         # highest fitness
         if population[0] == solution:
             repeatedTimes += 1
@@ -151,4 +151,4 @@ def genetics(Budget, Units, Areas_demand, radii, maxTimes, CpD, family, r):
             solution = population[0]
         # Survive of the fittest
         currFamily = population[:family + 1]
-    return solution[1], solution[2], solution[3]
+    return solution[1], solution[2],solution[3], solution[4]

@@ -104,24 +104,24 @@ def solve(s):
     if s == 'Greedy':
         t = time.time()
         solution = Greedy(units, areas_demand, budget, radius, cpd, r)
-        st.session_state['fig'], customer, cost = plot_solution(solution, units, areas_demand, radius)
+        st.session_state['fig'], customer, cost, kitchens,restaurants,path = plot_solution(solution, units, areas_demand, radius)
         st.session_state['output'][0] = {'Algo': 'Greedy', 'customers': customer, 'cost': cost, 'time': time.time() - t}
     elif s == 'Genetics':
         t = time.time()
         solution = Genetics(units, areas_demand, budget, radius, cpd, r)
-        st.session_state['fig'] = plot_solution_2(solution[2], units, areas_demand, radius)
-        st.session_state['output'][1] = {'Algo': 'Genetics', 'customers': solution[0], 'cost': solution[1],
+        st.session_state['fig'],kitchens,restaurants,path = plot_solution_2(solution[3], units, areas_demand, radius)
+        st.session_state['output'][1] = {'Algo': 'Genetics', 'customers': solution[0], 'cost': solution[1]+solution[2],
                                          'time': time.time() - t}
     elif s == 'DP':
         t = time.time()
         solution = DP(units, areas_demand, budget, radius, cpd, r)
-        st.session_state['fig'] = plot_solution_2(solution[3], units, areas_demand, radius)
+        st.session_state['fig'],kitchens,restaurants,path = plot_solution_2(solution[3], units, areas_demand, radius)
         st.session_state['output'][2] = {'Algo': 'DP', 'customers': solution[0], 'cost': solution[1] + solution[2],
                                          'time': time.time() - t}
     elif s == 'MIP':
         t = time.time()
         solution = MIP(units, areas_demand, budget, radius, cpd, r)
-        st.session_state['fig'], customer, cost = plot_solution(solution, units, areas_demand, radius)
+        st.session_state['fig'], customer, cost,kitchens,restaurants,path = plot_solution(solution, units, areas_demand, radius)
         st.session_state['output'][3] = {'Algo': 'MIP', 'customers': customer, 'cost': cost, 'time': time.time() - t}
 
 

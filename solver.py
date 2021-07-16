@@ -96,12 +96,12 @@ def MIP(units, areas_demand, budget, radius, cpd, r):
     for i in range(n):
         for j in range(n):
             transport_cost += transport[i][j] * eucledian_distance(units[i]['position'], units[j]['position']) * cpd
-    cost += transport_cost * 365
+    cost += transport_cost * 1
     solver.Add(cost <= budget)
     customers = 0
     for a in range(num_areas):
         for i in range(n):
-            customers += area_flow[i][a] * 365
+            customers += area_flow[i][a] * 1
     solver.set_time_limit(60000)
     solver.Maximize(customers * (1 - 1.0 / r) - cost * 1.0 / r)
     solver.Solve()
@@ -133,7 +133,7 @@ def Greedy(units, areas_demand, budget, radius, cpd, r):
         kitchen[kitch_ind] = 1
         used = False
         units_restaurant = sorted(units, key=lambda unit: (unit['rent'] + unit[
-            'initial_restaurant'] + eucledian_distance(kitch_pos, unit['position']) * (1.0 / r) * 365 * cpd * min(kitch_cap, unit[
+            'initial_restaurant'] + eucledian_distance(kitch_pos, unit['position']) * (1.0 / r) * 1 * cpd * min(kitch_cap, unit[
             'capacity_restaurant'] - rest_cap_sofar[unit['initial_index']])) / unit['capacity_restaurant'] * (1 - 1.0 / r))
         for j in range(n):
             rest_ind = units_restaurant[j]['initial_index']
@@ -149,15 +149,15 @@ def Greedy(units, areas_demand, budget, radius, cpd, r):
                 budget -= rest_price
                 restaurant[rest_ind] = 1
             transfer = min(kitch_cap, rest_cap - rest_cap_sofar[rest_ind])
-            trans_cost = eucledian_distance(kitch_pos, rest_pos) * 365 * cpd * min(kitch_cap,
+            trans_cost = eucledian_distance(kitch_pos, rest_pos) * 1 * cpd * min(kitch_cap,
                                                                                    rest_cap - rest_cap_sofar[rest_ind])
             if budget < trans_cost:
-                transfer = int(budget // (eucledian_distance(kitch_pos, rest_pos) * 365 * cpd))
+                transfer = int(budget // (eucledian_distance(kitch_pos, rest_pos) * 1 * cpd))
             transport[kitch_ind][rest_ind] = transfer
             areas_demand_sofar[rest_area] += transfer
             rest_cap_sofar[rest_ind] += transfer
             kitch_cap -= transfer
-            budget -= eucledian_distance(kitch_pos, rest_pos) * 365 * cpd * transfer
+            budget -= eucledian_distance(kitch_pos, rest_pos) * 1 * cpd * transfer
             used = True
         if not used:
             kitchen[kitch_ind] = 0

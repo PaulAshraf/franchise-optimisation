@@ -48,7 +48,7 @@ def getCost(units, kitchensPicked, restaurantsPicked, restaurantsDemand, dist, c
                     kitchensPicked[min_cost_flow.Tail(i)],
                     restaurantsPicked[min_cost_flow.Head(i) - len(kitchensPicked)],
                     min_cost_flow.Flow(i)))
-        totalCost = (totalCost * 365)
+        totalCost = (totalCost * 1)
         return totalFlow, totalCost, out
     else:
         return 0, INF, []
