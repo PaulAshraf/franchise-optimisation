@@ -56,7 +56,7 @@ def makeDistances():
 
 def callDP(usememory=True, useBudgetApproximation=1, useCapacityApproximation=1):
     global budget, units, areas_demand, memo, radius, cur_locationBudgetMemo, counter, normalTime, useMemory, budgetApproximation, capacityApproximation, processed, restsDoNotExceedDemand
-    useBudgetApproximation = min(int(budget / 1000.0), useBudgetApproximation)
+    useBudgetApproximation = min(1000, useBudgetApproximation)
     capacityApproximation = useCapacityApproximation
     budgetApproximation = useBudgetApproximation
     useMemory = usememory
