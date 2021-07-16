@@ -9,6 +9,12 @@ memoNotExceed = {}
 memoResult = {}
 
 
+def init():
+    global memoNotExceed, memoResult
+    memoNotExceed = {}
+    memoResult = {}
+
+
 def estimateDemands(budget, locations, units, areas_demand, dist, radius, cpd=1, restsDoNotExceedDemand=False):
     if budget < 0:
         return baseCase
@@ -30,7 +36,6 @@ def estimateDemands(budget, locations, units, areas_demand, dist, radius, cpd=1,
     indexResult = (indexRests, capacity)
     if indexResult in memoResult:
         return getCost(units, kitchensPicked, restaurantsPicked, memoResult[indexResult], dist, cpd)
-
     DemandArea = [areas_demand[i][1] for i in range(len(areas_demand))]
     DemandRestaurant = [units[i]['capacity_restaurant'] for i in restaurantsPicked]
     # RestInArea[A][R]=1 if restaurant R is in area A
