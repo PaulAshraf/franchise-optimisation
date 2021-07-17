@@ -44,6 +44,8 @@ def getSolution(r):
         budget,
         locations,
         units, areas_demand, dist, radius, cpd)
+    if cost + transCost > budget:
+        cust = 0
     return locations, cust, cost, transCost, path
 
 
