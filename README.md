@@ -7,3 +7,6 @@
   * pip install -r requirements.txt
 # Run
 * streamlit run display.py
+
+# Contributers:
+Hatem Elsayed, linkedin: https://www.linkedin.com/in/hatem-g-elsayed
