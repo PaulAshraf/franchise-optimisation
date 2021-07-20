@@ -10,3 +10,6 @@
 
 # Contributers:
 Hatem Elsayed, linkedin: https://www.linkedin.com/in/hatem-g-elsayed
+Peter Abdalla
+Mina Mamdouh
+Paul Ashraf
